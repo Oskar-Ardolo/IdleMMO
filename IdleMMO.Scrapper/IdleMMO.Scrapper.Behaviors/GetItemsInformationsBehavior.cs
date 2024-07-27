@@ -41,7 +41,7 @@ namespace IdleMMO.Scrapper.Behaviors
                 await page.GoToAsync($"https://web.idle-mmo.com/item/inspect/Ro31P7kZL6AYveGxXOy5?same_window=true", WaitUntilNavigation.Networkidle2);
 
                 string jsCode = File.ReadAllText("JS/itemScrape.js");
-                var result = await page.EvaluateExpressionAsync<ResponseData>(jsCode);
+                var result = await page.EvaluateExpressionAsync<Item>(jsCode);
 
                 await page.DisposeAsync();
                 await browser.DisposeAsync();
@@ -55,11 +55,6 @@ namespace IdleMMO.Scrapper.Behaviors
         }
     }
 
-
-    public class ResponseData
-    {
-        public Item DATA { get; set; }
-    }
 
     
 
