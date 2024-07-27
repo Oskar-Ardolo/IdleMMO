@@ -1,5 +1,6 @@
 ﻿using IdleMMO.Scrapper.Behaviors.DI;
 using IdleMMO.Scrapper.Models.Configuration;
+using IdleMMO.Scrapper.Models.IdleMMO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PuppeteerSharp;
@@ -60,20 +61,7 @@ namespace IdleMMO.Scrapper.Behaviors
         public Item DATA { get; set; }
     }
 
-    public class Item
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public int VendorValue {  get; set; }
-        public string Type { get; set; }
-        public string Quality {  get; set; }
-        public string Rarity { get; set; }
-        public List<MarketOffer> MarketOffers { get; set; }
-    }
+    
 
-    public class MarketOffer
-    {
-        public int Stock { get; set; }
-        public int Price { get; set; }
-    }
+    
 }
