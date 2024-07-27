@@ -23,6 +23,10 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
         let value = null;
         let validValue = false;
         switch (type) {
+            case "not_spaced_string":
+                value = element.textContent.replace(/\n/g, "").trim().replace(/ /g, "");
+                validValue = true;
+                break;
             case "string":
                 value = element.textContent.replace(/\n/g, "").trim();
                 validValue = true;
@@ -56,7 +60,7 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
 
 ((config) => {
     const avertissements = [];
-    const DATA = {};
+    let DATA = {};
     const HTML = {
         banner: {},
         side: {categories: []},
@@ -93,7 +97,7 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                     if (category !== null) {
                         HTML.side.categories.push(category.HTML);
                         if (category.status === "used")
-                            DATA[category.key] = category.DATA;
+                            DATA = {...category.DATA, ...DATA};
                     }
 
                     let categoryNameElement = null;
@@ -114,7 +118,7 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                             containers: [sideElement],
                             name: categoryNameElement
                         },
-                        DATA: []
+                        DATA: {}
                     };
 
                     switch (category.name) {
@@ -154,13 +158,11 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                                         const infosElement = infosContainer.children[o];
 
                                         const categoryDataNameElement = safelyGetHtmlElement(infosElement.children[0].children[0].children[1], "SPAN", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].name`, config.modules.side.required);
-                                        const categoryData = {
-                                            Name: safelyExtractFromHtmlElement("DATA.Informations[${o}].Name", categoryDataNameElement, "not_empty_string", (config.modules.side.required && config.modules.side.dataCheck))
-                                        };
+                                        const categoryDataName = safelyExtractFromHtmlElement("DATA.Informations[${o}].Name", categoryDataNameElement, "not_spaced_string", (config.modules.side.required && config.modules.side.dataCheck));
                                     
                                         let categoryDataValueElement = null;
                                         let categoryDataValueType;
-                                        switch (categoryData.Name) {
+                                        switch (categoryDataName) {
                                             case "Rarity":
                                                 categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1].children[0], "SPAN", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
                                                 categoryDataValueType = "not_empty_string";
@@ -171,14 +173,14 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                                                 categoryDataValueType = "not_empty_string";
                                                 break;
                                             case "Level":
-                                            case "Vendor Value":
-                                            case "Forge Level Required":
-                                            case "Maximum Uses":
+                                            case "VendorValue":
+                                            case "ForgeLevelRequired":
+                                            case "MaximumUses":
                                                 categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
                                                 categoryDataValueType = "unsigned_int";
                                                 break;
                                             default:
-                                                avertissements.push(`HTML.side - catégorie "${category.name}" - information non référencée - nom: "${categoryData.Name}"`);
+                                                avertissements.push(`HTML.side - catégorie "${category.name}" - information non référencée - nom: "${categoryDataName}"`);
                                                 break;
                                         }
 
@@ -186,9 +188,8 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                                             name: categoryDataNameElement,
                                             value: categoryDataValueElement
                                         });
-                                        if (categoryDataValueElement !== null) {                            
-                                            categoryData.Value = safelyExtractFromHtmlElement("DATA.Informations[${o}].Value", categoryDataValueElement, categoryDataValueType, (config.modules.side.required && config.modules.side.dataCheck));
-                                            category.DATA.push(categoryData);
+                                        if (categoryDataValueElement !== null) {  
+                                            category.DATA[categoryDataName] = safelyExtractFromHtmlElement("DATA.Informations[${o}].Value", categoryDataValueElement, categoryDataValueType, (config.modules.side.required && config.modules.side.dataCheck));                    
                                         }
                                     }
                                 }
@@ -201,7 +202,7 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                     if (category !== null) {
                         HTML.side.categories.push(category.HTML);
                         if (category.status === "used")
-                            DATA[category.key] = category.DATA;
+                            DATA = {...category.DATA, ...DATA};
                     }
                 }
             }
