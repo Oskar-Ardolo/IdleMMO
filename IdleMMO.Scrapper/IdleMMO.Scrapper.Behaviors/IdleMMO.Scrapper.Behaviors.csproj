@@ -9,10 +9,17 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+    <PackageReference Include="PuppeteerSharp" Version="18.0.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\IdleMMO.Scrapper.Models\IdleMMO.Scrapper.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="JS\itemScrape.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

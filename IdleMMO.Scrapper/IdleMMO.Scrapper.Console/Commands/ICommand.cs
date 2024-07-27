@@ -8,7 +8,7 @@ namespace IdleMMO.Scrapper.Console.Commands
 {
     public interface ICommand
     {
-        void Execute();
+        public Task ExecuteAsync();
     }
    
 }

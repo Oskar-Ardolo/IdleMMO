@@ -30,11 +30,10 @@ namespace IdleMMO.Scrapper.Console.Commands.GetItemsInformations
 
         }
 
-        public void Execute()
+        public async Task ExecuteAsync()
         {
             _logger.LogInformation("cc mdr = " + _options.Option);
-            _behavior.Run();
-            throw new NotImplementedException();
+            await _behavior.Run();       
         } 
     }
 }

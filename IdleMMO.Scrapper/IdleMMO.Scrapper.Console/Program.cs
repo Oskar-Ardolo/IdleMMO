@@ -22,4 +22,4 @@ serviceCollection.Configure<Settings>(configuration.GetSection("Settings"));
 
 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-serviceProvider.ExecuteCommand(args);
+await serviceProvider.ExecuteCommand(args);

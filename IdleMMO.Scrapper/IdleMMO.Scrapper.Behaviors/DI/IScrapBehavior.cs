@@ -8,6 +8,6 @@ namespace IdleMMO.Scrapper.Behaviors.DI
 {
     public interface IScrapBehavior<T>
     {
-        public void Run();
+        public Task Run();
     }
 }

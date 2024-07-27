@@ -24,7 +24,7 @@ namespace IdleMMO.Scrapper.Console
             return services;
         }
 
-        public static void ExecuteCommand(this IServiceProvider serviceProvider, string[] args)
+        public static async Task ExecuteCommand(this IServiceProvider serviceProvider, string[] args)
         {
             var parser = new CommandLine.Parser(with => with.HelpWriter = System.Console.Out);
 
@@ -33,7 +33,7 @@ namespace IdleMMO.Scrapper.Console
                 .Where(t => typeof(ICommandOptions).IsAssignableFrom(t) && !t.IsInterface).ToArray();
 
             var result = parser.ParseArguments(args, optionTypes);
-            result.WithParsed(option =>
+            await result.WithParsedAsync(async option =>
             {
                 // Find the corresponding command type
                 var commandType = Assembly.GetExecutingAssembly().GetTypes()
@@ -42,7 +42,7 @@ namespace IdleMMO.Scrapper.Console
                 if (commandType != null)
                 {
                     var command = (ICommand)ActivatorUtilities.CreateInstance(serviceProvider, commandType, option);
-                    command.Execute();
+                    await command.ExecuteAsync();
                 }
                 else
                 {
@@ -50,5 +50,6 @@ namespace IdleMMO.Scrapper.Console
                 }
             });
         }
+
     }
 }
