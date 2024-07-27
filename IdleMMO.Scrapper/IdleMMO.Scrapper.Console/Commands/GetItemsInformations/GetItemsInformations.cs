@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using IdleMMO.Scrapper.Models.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +13,13 @@ namespace IdleMMO.Scrapper.Console.Commands.GetItemsInformations
     {
         private GetItemsInformationsOptions _options;
         private readonly ILogger<GetItemsInformations> _logger;
+        private readonly Settings _settings;
 
-        public GetItemsInformations(GetItemsInformationsOptions options, ILogger<GetItemsInformations> logger)
+        public GetItemsInformations(GetItemsInformationsOptions options, ILogger<GetItemsInformations> logger, IOptions<Settings> settings)
         {
             _options = options;
             _logger = logger;
+            _settings = settings.Value;
         }
 
         public void Execute()

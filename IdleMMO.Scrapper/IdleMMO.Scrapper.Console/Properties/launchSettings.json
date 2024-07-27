@@ -1,7 +1,8 @@
 {
   "profiles": {
     "IdleMMO.Scrapper.Console": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "GetItemsInformations -o lol"
     }
   }
 }
