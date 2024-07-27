@@ -13,16 +13,28 @@ namespace IdleMMO.Scrapper.Behaviors
         private readonly Settings _settings;
         private readonly ILogger<GetItemsInformationsBehavior> _logger;
         private readonly UtilsHelper _helper;
-        public GetItemsInformationsBehavior(IOptions<Settings> settings, ILogger<GetItemsInformationsBehavior> logger, UtilsHelper helper) 
+        private readonly DBHelper _dbHelper;
+        public GetItemsInformationsBehavior(IOptions<Settings> settings, ILogger<GetItemsInformationsBehavior> logger, UtilsHelper helper, DBHelper dBHelper) 
         { 
             _settings = settings.Value;
             _logger = logger;
             _helper = helper;
+            _dbHelper = dBHelper;
         }
         
         public async Task Run()
         {
             _logger.LogInformation("Starting behavior GetItemsInformationsBehavior");
+
+            List<Item> itemList = await _dbHelper.GetItemListAsync(3);
+            List<Item> updatedList = await GetItemsInformationsFromGameAsync(itemList);
+            await _dbHelper.UpdateItemListAsync(updatedList);
+            return;
+        }
+
+        public async Task<List<Item>> GetItemsInformationsFromGameAsync(List<Item> originalList)
+        {
+            List<Item> returnList = new List<Item>();
             try
             {
                 var browserFetcher = new BrowserFetcher();
@@ -30,18 +42,22 @@ namespace IdleMMO.Scrapper.Behaviors
                 var browser = await Puppeteer.LaunchAsync(new LaunchOptions
                 {
                     Headless = false,
-                    //Devtools = true,
                     ExecutablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
                 });
 
-                // page is crashed in Chromium and timeout after 5 mins
                 var page = await browser.NewPageAsync();
                 await _helper.LoginAsync(page);
 
-                await page.GoToAsync($"https://web.idle-mmo.com/item/inspect/Ro31P7kZL6AYveGxXOy5?same_window=true", WaitUntilNavigation.Networkidle2);
+                foreach (var item in originalList)
+                {
+                    await page.GoToAsync($"https://web.idle-mmo.com/item/inspect/{item.Id}?same_window=true", WaitUntilNavigation.Networkidle2);
 
-                string jsCode = File.ReadAllText("JS/itemScrape.js");
-                var result = await page.EvaluateExpressionAsync<Item>(jsCode);
+                    string jsCode = File.ReadAllText("JS/itemScrape.js");
+                    var result = await page.EvaluateExpressionAsync<Item>(jsCode);
+                    result.Id = item.Id;
+                    returnList.Add(result);
+                    await Task.Delay(_settings.IdleMMO.PageDelay);
+                }
 
                 await page.DisposeAsync();
                 await browser.DisposeAsync();
@@ -50,8 +66,7 @@ namespace IdleMMO.Scrapper.Behaviors
             {
                 _logger.LogError(ex.Message);
             }
-            
-            return;
+            return returnList;
         }
     }
 

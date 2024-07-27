@@ -26,6 +26,7 @@ namespace IdleMMO.Scrapper.Behaviors.DI
             }
 
             services.AddSingleton<UtilsHelper>();
+            services.AddSingleton<DBHelper>();
 
             return services;
         }

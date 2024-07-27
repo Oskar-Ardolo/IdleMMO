@@ -9,5 +9,7 @@ namespace IdleMMO.Scrapper.Models.Configuration
     public class Settings
     {
         public IdleMMOSettings IdleMMO {  get; set; }
+
+        public DatabaseSettings Database {  get; set; }
     }
 }

@@ -9,5 +9,7 @@ namespace IdleMMO.Scrapper.Models.Configuration
     public class IdleMMOSettings
     {
         public IdleMMOLogin Login { get; set; }
+
+        public int PageDelay { get; set; } = 1000;
     }
 }

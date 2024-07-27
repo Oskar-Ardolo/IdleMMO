@@ -10,6 +10,6 @@ namespace IdleMMO.Scrapper.Models.Configuration
     {
         public string Username { get; set; }
         public string Password { get; set; }
-        public int WaitTime { get; set; }
+        public int WaitTime { get; set; } = 1000;
     }
 }
