@@ -4,10 +4,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using IdleMMO.Scrapper.Models.Configuration;
+using IdleMMO.Scrapper.Behaviors.DI;
 
 var serviceCollection = new ServiceCollection();
 
 serviceCollection.ConfigureCommands();
+serviceCollection.AddBehaviors();
+
 serviceCollection.AddLogging(configure => configure.AddConsole());
 
 

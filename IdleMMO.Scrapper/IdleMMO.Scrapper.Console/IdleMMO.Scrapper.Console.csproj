@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\IdleMMO.Scrapper.Behaviors\IdleMMO.Scrapper.Behaviors.csproj" />
     <ProjectReference Include="..\IdleMMO.Scrapper.Models\IdleMMO.Scrapper.Models.csproj" />
   </ItemGroup>
 
