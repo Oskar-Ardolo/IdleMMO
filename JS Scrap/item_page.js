@@ -44,6 +44,15 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                         validValue = true;
                 }
                 break;
+            case "vendor_value":
+                value = element.textContent.replace(/\n/g, "").trim().replace(",", "");
+                if (/^\d+$/.test(value)) {
+                    value = parseInt(value, 10);
+                    if (value > 0)
+                        validValue = true;
+                }
+                validValue = true;
+                break;
             default:
                 throw new Error(`type de retour inconnu - type: "${type}"`);
         }
@@ -58,7 +67,7 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
 }
 
 
-((config) => {
+return ((config) => {
     const avertissements = [];
     let DATA = {};
     const HTML = {
@@ -216,12 +225,14 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                                                 categoryDataValueType = "not_empty_string";
                                                 break;
                                             case "Level":
-                                            case "VendorValue":
                                             case "ForgeLevelRequired":
                                             case "MaximumUses":
                                                 categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
                                                 categoryDataValueType = "unsigned_int";
                                                 break;
+                                            case "VendorValue":
+                                                categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
+                                                categoryDataValueType = "vendor_value";
                                             default:
                                                 avertissements.push(`HTML.side - catégorie "${category.name}" - information non référencée - nom: "${categoryDataName}"`);
                                                 break;
