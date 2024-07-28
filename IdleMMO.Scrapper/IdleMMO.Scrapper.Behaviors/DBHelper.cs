@@ -26,11 +26,11 @@ namespace IdleMMO.Scrapper.Behaviors
             _client.AddDefaultHeader("Authorization", "Bearer "+_settings.Database.Token);
         }
 
-        public async Task<List<Item>> GetItemListAsync(int limit)
+        public async Task<List<Item>> GetItemListAsync(string limit, string offset)
         {
             var request = new RestRequest("/items?filter[Name][_null]=true", Method.Get);
             request.AddParameter("limit", limit);
-            //request.AddHeader("Authorization", "Bearer " + _settings.Database.Token);
+            request.AddParameter("offset", offset);
 
             using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
             {

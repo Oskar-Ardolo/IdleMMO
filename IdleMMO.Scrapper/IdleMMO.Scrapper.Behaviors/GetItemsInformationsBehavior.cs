@@ -22,14 +22,20 @@ namespace IdleMMO.Scrapper.Behaviors
             _dbHelper = dBHelper;
         }
         
-        public async Task Run()
+        public async Task Run(string[] args)
         {
             _logger.LogInformation("Starting behavior GetItemsInformationsBehavior");
+            string limit = args[0];
+            string offset = args[1];
+            
+            List<Item> itemList = await _dbHelper.GetItemListAsync(limit, offset);
+            _logger.LogInformation($"{itemList.Count}/{limit} items retrieved from database.");
 
-            List<Item> itemList = await _dbHelper.GetItemListAsync(50);
             List<Item> updatedList = await GetItemsInformationsFromGameAsync(itemList);
+            _logger.LogInformation($"{updatedList.Count}/{itemList.Count} items information retrieved from IdleMMO.");
+
             await _dbHelper.UpdateItemListAsync(updatedList);
-            return;
+            _logger.LogInformation("Update finished.");
         }
 
         public async Task<List<Item>> GetItemsInformationsFromGameAsync(List<Item> originalList)
@@ -51,6 +57,7 @@ namespace IdleMMO.Scrapper.Behaviors
                 foreach (var item in originalList)
                 {
                     await page.GoToAsync($"https://web.idle-mmo.com/item/inspect/{item.Id}?same_window=true", WaitUntilNavigation.Networkidle2);
+                    await Task.Delay(_settings.IdleMMO.PageDelay);
 
                     string jsCode = File.ReadAllText("JS/itemScrape.js");
                     Item result = null;
@@ -69,7 +76,7 @@ namespace IdleMMO.Scrapper.Behaviors
 
                     result.Id = item.Id;
                     returnList.Add(result);
-                    await Task.Delay(_settings.IdleMMO.PageDelay);
+                    
                 }
 
                 await page.DisposeAsync();

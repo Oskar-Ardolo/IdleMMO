@@ -32,8 +32,11 @@ namespace IdleMMO.Scrapper.Console.Commands.GetItemsInformations
 
         public async Task ExecuteAsync()
         {
-            _logger.LogInformation("cc mdr = " + _options.Option);
-            await _behavior.Run();       
+            _logger.LogInformation("Running GetItemsInformations with options : ");
+            _logger.LogInformation($"Limit = {_options.Limit}");
+            _logger.LogInformation($"Offset = {_options.Offset}");
+            string[] args = [_options.Limit, _options.Offset];
+            await _behavior.Run(args);
         } 
     }
 }
