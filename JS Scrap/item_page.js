@@ -51,7 +51,17 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                     if (value > 0)
                         validValue = true;
                 }
-                validValue = true;
+                break;
+            case "maximum_uses":
+                value = element.textContent.replace(/\n/g, "").trim();
+                if (/^\d+$/.test(value)) {
+                    value = parseInt(value, 10);
+                    if (value > 0)
+                        validValue = true;
+                }
+                else if (value === "Unlimited")
+                    value = 0;
+                    validValue = true;
                 break;
             default:
                 throw new Error(`type de retour inconnu - type: "${type}"`);
@@ -67,7 +77,7 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
 }
 
 
-return ((config) => {
+((config) => {
     const avertissements = [];
     let DATA = {};
     const HTML = {
@@ -226,13 +236,15 @@ return ((config) => {
                                                 break;
                                             case "Level":
                                             case "ForgeLevelRequired":
-                                            case "MaximumUses":
                                                 categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
                                                 categoryDataValueType = "unsigned_int";
                                                 break;
                                             case "VendorValue":
                                                 categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
                                                 categoryDataValueType = "vendor_value";
+                                            case "MaximumUses":
+                                                categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
+                                                categoryDataValueType = "maximum_uses";
                                             default:
                                                 avertissements.push(`HTML.side - catégorie "${category.name}" - information non référencée - nom: "${categoryDataName}"`);
                                                 break;
