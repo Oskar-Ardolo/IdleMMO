@@ -45,6 +45,25 @@ function safelyExtractFromHtmlElement(dataName, element, type, valueCheck = fals
                         validValue = true;
                 }
                 break;
+            case "vendor_value":
+                value = element.textContent.replace(/\n/g, "").trim().replace(",", "");
+                if (/^\d+$/.test(value)) {
+                    value = parseInt(value, 10);
+                    if (value > 0)
+                        validValue = true;
+                }
+                break;
+            case "maximum_uses":
+                value = element.textContent.replace(/\n/g, "").trim();
+                if (/^\d+$/.test(value)) {
+                    value = parseInt(value, 10);
+                    if (value > 0)
+                        validValue = true;
+                }
+                else if (value === "Unlimited")
+                    value = 0;
+                    validValue = true;
+                break;
             default:
                 throw new Error(`type de retour inconnu - type: "${type}"`);
         }
@@ -124,13 +143,12 @@ return ((config) => {
 
                     switch (category.name) {
                         case "Information":
+                        case "Craftable Item":
                             category.status = "used";
-                            category.key = "Informations";
                             break;
                         case "Actions":
                         case "Your Character":
                         case "Stats and Effects":
-                        case "Craftable Item":
                         case "Requirements":
                         case "Effects":
                         case "Pet":
@@ -143,6 +161,50 @@ return ((config) => {
                             category.status = "unknown";
                             avertissements.push(`HTML.side - catégorie non référencée - nom: "${category.name}"`);
                             break;
+                    }
+
+                    if (category.name === "Craftable Item") {
+                        const resultContainer = safelyGetHtmlElement(category.HTML.containers[0].children[1].children[0].children[1].children[0], "A", "DATA.RecipeInfos.Result.Name", config.modules.side.required);
+                        let resultContainerId = document.createElement("a");
+                        const regex = /\/item\/inspect\/([^\/?]+)/;
+                        const match = resultContainer.href.match(regex);
+                        if (match) {
+                            resultContainerId.textContent = match[1];
+                        }
+                        category.DATA.RecipeInfos = {
+                            Result: {
+                                Id: safelyExtractFromHtmlElement("DATA.RecipeInfos.Result.Id", resultContainerId, "not_empty_string", (config.modules.side.required && config.modules.side.dataCheck)),
+                                Name: safelyExtractFromHtmlElement("DATA.RecipeInfos.Result.Name", resultContainer, "not_empty_string", (config.modules.side.required && config.modules.side.dataCheck))
+                            },
+                            Ingredients: []
+                        };
+
+                        const ingredientsContainers = category.HTML.containers[0].children[3].children[0];
+                        for (let o = 0; o < ingredientsContainers.children.length; o++) {
+                            const ingredientContainer = ingredientsContainers.children[o];
+                            const ingredientInfosContainer = ingredientContainer.children[0].children[0].children[1];
+                            let ingredientContainerName = document.createElement("span");
+                            let ingredientContainerCount = document.createElement("span");
+                            const regex2 = /^x(\d+)\s*(.*)$/;
+                            const match2 = ingredientInfosContainer.textContent.replace(/\n/g, "").trim().match(regex2);
+                            if (match2) {
+                                ingredientContainerName.textContent = match2[2];
+                                ingredientContainerCount.textContent = match2[1];
+                            }
+                            const ingredientIdContainer = ingredientInfosContainer.children[0];
+                            let ingredientContainerId = document.createElement("a");
+                            const regex3 = /\/item\/inspect\/([^\/?]+)/;
+                            const match3 = ingredientIdContainer.href.match(regex3);
+                            if (match3) {
+                                ingredientContainerId.textContent = match3[1];
+                            }
+
+                            category.DATA.RecipeInfos.Ingredients.push({
+                                Id: safelyExtractFromHtmlElement(`DATA.RecipeInfos.Ingredients[${o}].Id`, ingredientContainerId, "not_empty_string", (config.modules.side.required && config.modules.side.dataCheck)),
+                                Name: safelyExtractFromHtmlElement(`DATA.RecipeInfos.Ingredients[${o}].Name`, ingredientContainerName, "not_empty_string", (config.modules.side.required && config.modules.side.dataCheck)),
+                                Count: safelyExtractFromHtmlElement(`DATA.RecipeInfos.Ingredients[${o}].Count`, ingredientContainerCount, "unsigned_int", (config.modules.side.required && config.modules.side.dataCheck))
+                            });
+                        }
                     }
                 }
                 else {
@@ -174,12 +236,16 @@ return ((config) => {
                                                 categoryDataValueType = "not_empty_string";
                                                 break;
                                             case "Level":
-                                            case "VendorValue":
                                             case "ForgeLevelRequired":
-                                            case "MaximumUses":
                                                 categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
                                                 categoryDataValueType = "unsigned_int";
                                                 break;
+                                            case "VendorValue":
+                                                categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
+                                                categoryDataValueType = "vendor_value";
+                                            case "MaximumUses":
+                                                categoryDataValueElement = safelyGetHtmlElement(infosElement.children[1], "DIV", `HTML.side.categories[${HTML.side.categories.length}].infos[${o}].value`, config.modules.side.required);
+                                                categoryDataValueType = "maximum_uses";
                                             default:
                                                 avertissements.push(`HTML.side - catégorie "${category.name}" - information non référencée - nom: "${categoryDataName}"`);
                                                 break;
@@ -282,5 +348,6 @@ return ((config) => {
     },
     devEnvironment: true
 });
+
 
 })();
