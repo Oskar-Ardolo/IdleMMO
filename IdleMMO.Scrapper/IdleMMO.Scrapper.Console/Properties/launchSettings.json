@@ -2,7 +2,7 @@
   "profiles": {
     "IdleMMO.Scrapper.Console": {
       "commandName": "Project",
-      "commandLineArgs": "GetItemsInformations -l 100 -o 0"
+      "commandLineArgs": "GetRecipeInformations -l -1 -o 0"
     }
   }
 }

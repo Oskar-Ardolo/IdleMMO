@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IdleMMO.Scrapper.Console.Commands.GetItemsInformations
+namespace IdleMMO.Scrapper.Console.Commands.GetRecipeInformations
 {
-    [Verb("GetItemsInformations", HelpText = "Execute GetItemsInformations")]
-    public class GetItemsInformationsOptions : ICommandOptions
+    [Verb("GetRecipeInformations", HelpText = "Execute GetRecipeInformations")]
+    public class GetRecipeInformationsOptions : ICommandOptions
     {
         [Option('l', "limit", Required = false, HelpText = "Item limit")]
         public string Limit { get; set; } = "-1";

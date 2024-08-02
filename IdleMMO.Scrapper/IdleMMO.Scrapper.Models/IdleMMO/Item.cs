@@ -18,8 +18,7 @@ namespace IdleMMO.Scrapper.Models.IdleMMO
         public string? Level { get; set; }
         public int? ForgeLevelRequired {  get; set; }
         public int? MaximumUses { get; set; }
-
-
+        public RecipeInfos? RecipeInfos { get; set; }
         public List<MarketOffer> MarketOffers { get; set; }
     }
 }

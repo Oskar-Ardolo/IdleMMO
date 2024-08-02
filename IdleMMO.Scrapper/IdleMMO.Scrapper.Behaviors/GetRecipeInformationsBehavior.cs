@@ -8,13 +8,13 @@ using System.Runtime.Intrinsics.X86;
 
 namespace IdleMMO.Scrapper.Behaviors
 {
-    public class GetItemsInformationsBehavior : IScrapBehavior<GetItemsInformationsBehavior>
+    public class GetRecipeInformationsBehavior : IScrapBehavior<GetRecipeInformationsBehavior>
     {
         private readonly Settings _settings;
-        private readonly ILogger<GetItemsInformationsBehavior> _logger;
+        private readonly ILogger<GetRecipeInformationsBehavior> _logger;
         private readonly UtilsHelper _helper;
         private readonly DBHelper _dbHelper;
-        public GetItemsInformationsBehavior(IOptions<Settings> settings, ILogger<GetItemsInformationsBehavior> logger, UtilsHelper helper, DBHelper dBHelper) 
+        public GetRecipeInformationsBehavior(IOptions<Settings> settings, ILogger<GetRecipeInformationsBehavior> logger, UtilsHelper helper, DBHelper dBHelper) 
         { 
             _settings = settings.Value;
             _logger = logger;
@@ -24,18 +24,18 @@ namespace IdleMMO.Scrapper.Behaviors
         
         public async Task Run(string[] args)
         {
-            _logger.LogInformation("Starting behavior GetItemsInformationsBehavior");
+            _logger.LogInformation("Starting behavior GetRecipeInformationsBehavior");
             string limit = args[0];
             string offset = args[1];
-            string filter = "filter[Name][_null]=true";
+            string filter = "filter[Type]=Recipe";
 
             List<Item> itemList = await _dbHelper.GetItemListAsync(limit, offset, filter);
-            _logger.LogInformation($"{itemList.Count}/{limit} items retrieved from database.");
+            _logger.LogInformation($"{itemList.Count}/{limit} recipes retrieved from database.");
 
             List<Item> updatedList = await GetItemsInformationsFromGameAsync(itemList);
-            _logger.LogInformation($"{updatedList.Count}/{itemList.Count} items information retrieved from IdleMMO.");
+            _logger.LogInformation($"{updatedList.Count}/{itemList.Count} recipe information retrieved from IdleMMO.");
 
-            await _dbHelper.UpdateItemListAsync(updatedList);
+            await _dbHelper.UpdateRecipeList(updatedList);
             _logger.LogInformation("Update finished.");
         }
 
