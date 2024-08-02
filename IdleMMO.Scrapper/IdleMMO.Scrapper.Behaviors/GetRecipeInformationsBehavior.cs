@@ -55,30 +55,7 @@ namespace IdleMMO.Scrapper.Behaviors
                 var page = await browser.NewPageAsync();
                 await _helper.LoginAsync(page);
 
-                foreach (var item in originalList)
-                {
-                    await page.GoToAsync($"https://web.idle-mmo.com/item/inspect/{item.Id}?same_window=true", WaitUntilNavigation.Networkidle2);
-                    await Task.Delay(_settings.IdleMMO.PageDelay);
-
-                    string jsCode = File.ReadAllText("JS/itemScrape.js");
-                    Item result = null;
-                    bool resultCode = true;
-                    try
-                    {
-                         result = await page.EvaluateExpressionAsync<Item>(jsCode);
-                    } catch(Exception e)
-                    {
-                        _logger.LogError($"Erreur sur l'id {item.Id}");
-                        resultCode = false;
-                    }
-
-                    if (!resultCode)
-                        continue;
-
-                    result.Id = item.Id;
-                    returnList.Add(result);
-                    
-                }
+                returnList = await _helper.GetItemListPageData(page, originalList);
 
                 await page.DisposeAsync();
                 await browser.DisposeAsync();

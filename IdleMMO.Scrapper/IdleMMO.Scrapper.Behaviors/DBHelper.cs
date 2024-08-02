@@ -1,5 +1,4 @@
 ﻿using IdleMMO.Scrapper.Models.Configuration;
-using IdleMMO.Scrapper.Models.DB;
 using IdleMMO.Scrapper.Models.IdleMMO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
