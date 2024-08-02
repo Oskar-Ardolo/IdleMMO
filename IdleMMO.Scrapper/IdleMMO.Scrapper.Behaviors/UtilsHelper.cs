@@ -32,7 +32,7 @@ namespace IdleMMO.Scrapper.Behaviors
             return;
         }
 
-        public async Task<List<Item>> GetItemListPageData(IPage page, List<Item> itemsToGet)
+        private async Task<List<Item>> GetItemListPageData(IPage page, List<Item> itemsToGet)
         {
             var list = new List<Item>();
             foreach (var item in itemsToGet)
@@ -60,6 +60,34 @@ namespace IdleMMO.Scrapper.Behaviors
                 list.Add(result);
             }
             return list;
+        }
+
+        public async Task<List<Item>> GetItemsInformationsFromGameAsync(List<Item> originalList)
+        {
+            List<Item> returnList = new List<Item>();
+            try
+            {
+                var browserFetcher = new BrowserFetcher();
+                await browserFetcher.DownloadAsync();
+                var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+                {
+                    Headless = false,
+                    ExecutablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+                });
+
+                var page = await browser.NewPageAsync();
+                await LoginAsync(page);
+
+                returnList = await GetItemListPageData(page, originalList);
+
+                await page.DisposeAsync();
+                await browser.DisposeAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            return returnList;
         }
     }
 }

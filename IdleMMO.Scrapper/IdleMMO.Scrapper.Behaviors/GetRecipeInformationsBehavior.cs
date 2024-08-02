@@ -32,39 +32,11 @@ namespace IdleMMO.Scrapper.Behaviors
             List<Item> itemList = await _dbHelper.GetItemListAsync(limit, offset, filter);
             _logger.LogInformation($"{itemList.Count}/{limit} recipes retrieved from database.");
 
-            List<Item> updatedList = await GetItemsInformationsFromGameAsync(itemList);
+            List<Item> updatedList = await _helper.GetItemsInformationsFromGameAsync(itemList);
             _logger.LogInformation($"{updatedList.Count}/{itemList.Count} recipe information retrieved from IdleMMO.");
 
             await _dbHelper.UpdateRecipeList(updatedList);
             _logger.LogInformation("Update finished.");
-        }
-
-        public async Task<List<Item>> GetItemsInformationsFromGameAsync(List<Item> originalList)
-        {
-            List<Item> returnList = new List<Item>();
-            try
-            {
-                var browserFetcher = new BrowserFetcher();
-                await browserFetcher.DownloadAsync();
-                var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-                {
-                    Headless = false,
-                    ExecutablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-                });
-
-                var page = await browser.NewPageAsync();
-                await _helper.LoginAsync(page);
-
-                returnList = await _helper.GetItemListPageData(page, originalList);
-
-                await page.DisposeAsync();
-                await browser.DisposeAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-            return returnList;
         }
     }
 
