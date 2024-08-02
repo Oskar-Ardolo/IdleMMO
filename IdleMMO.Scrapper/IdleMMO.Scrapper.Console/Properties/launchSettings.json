@@ -2,7 +2,7 @@
   "profiles": {
     "IdleMMO.Scrapper.Console": {
       "commandName": "Project",
-      "commandLineArgs": "GetRecipeInformations -l 1 -o 0"
+      "commandLineArgs": "GetMarketOffersList -l -1 -o 100"
     }
   }
 }

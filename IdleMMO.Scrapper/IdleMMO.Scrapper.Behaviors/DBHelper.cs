@@ -91,42 +91,31 @@ namespace IdleMMO.Scrapper.Behaviors
                         { "RecipeId", item.Id },
                     };
                     await UpsertDirectusItem("ingredients", conditions, data);
-                    /*var getRequest = new RestRequest("/ingredients", Method.Get);
-                    getRequest.AddParameter("filter[ItemId]", ing.Id);
-                    getRequest.AddParameter("filter[RecipeId]", item.Id);
-                    var token = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-                    var resp = await _client.ExecuteAsync<DBIngredient>(getRequest, token.Token);
+                }
+            }
+        }
 
-                    RestRequest request = null;
-                    if (resp.Content != "{\"data\":[]}")
+        internal async Task UpdateMarketList(List<Item> itemsToUpdate)
+        {
+            foreach (var item in itemsToUpdate)
+            {
+                var conditions = new JObject
                     {
-                        request = new RestRequest("/ingredients", Method.Delete);
-                        request.AddBody($@"
-                            {{
-                                ""filter"": {{
-                                    ""ItemId"": {{
-                                        ""_eq"": ""{ing.Id}""
-                                    }},
-                                    ""RecipeId"": {{
-                                        ""_eq"": ""{item.Id}""
-                                    }}
-                                }}
-                            }}");
-                    } else
+                        { "ItemId", item.Id },
+                    };
+                await DeleteItems("MarketOffers", conditions);
+                foreach (MarketOffer offer in item.MarketOffers)
+                {
+                    var data = new JObject
                     {
-                        request = new RestRequest("/ingredients", Method.Post);
-                        var data = new Dictionary<string, object>
-                        {
-                            { "ItemId", ing.Id },
-                            { "Count", ing.Count },
-                            { "RecipeId", item.Id },
-                        };
-                        request.AddJsonBody(data);
-                    }
-
-                    var cancellationTokenSource2 = new CancellationTokenSource();
-                    var response = await _client.ExecuteAsync(request, cancellationTokenSource2.Token);
-
+                        { "ItemId", item.Id },
+                        { "Count", offer.Stock },
+                        { "Price", offer.Price },
+                    };
+                    var createRequest = new RestRequest($"/MarketOffers", Method.Post);
+                    createRequest.AddHeader("Content-Type", "application/json");
+                    createRequest.AddJsonBody(data.ToString());
+                    var response = await _client.ExecuteAsync(createRequest);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK)
                     {
                         _logger.LogInformation($"Item {item.Name} OK");
@@ -134,7 +123,7 @@ namespace IdleMMO.Scrapper.Behaviors
                     else
                     {
                         _logger.LogError($"Erreur sur l'Item {item.Name} avec ID = {item.Id}");
-                    }*/
+                    }
                 }
             }
         }
@@ -185,7 +174,43 @@ namespace IdleMMO.Scrapper.Behaviors
                 response = await _client.ExecuteAsync(createRequest);
             }
 
-            Console.WriteLine(response.Content);
+            _logger.LogInformation(response.Content);
+        }
+
+        private async Task DeleteItems(string collection, JObject conditions)
+        {
+            var request = new RestRequest($"/{collection}", Method.Get);
+
+            foreach (var condition in conditions)
+            {
+                request.AddParameter($"filter[{condition.Key}][_eq]", condition.Value.ToString());
+            }
+
+            var response = await _client.ExecuteAsync(request);
+
+            if (response.IsSuccessful)
+            {
+                var items = JObject.Parse(response.Content)["data"];
+                foreach (var item in items)
+                {
+                    string itemId = item["id"].ToString();
+                    var deleteRequest = new RestRequest($"/{collection}/{itemId}", Method.Delete);
+                    var deleteResponse = await _client.ExecuteAsync(deleteRequest);
+
+                    if (deleteResponse.IsSuccessful)
+                    {
+                        _logger.LogInformation($"Deleted item with ID: {itemId}");
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Failed to delete item with ID: {itemId}");
+                    }
+                }
+            }
+            else
+            {
+                _logger.LogInformation("Failed to retrieve items");
+            }
         }
     }
 
