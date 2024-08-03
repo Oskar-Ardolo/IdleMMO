@@ -54,7 +54,7 @@ namespace IdleMMO.Scrapper.Behaviors
                         { "Quality", item.Quality },
                         { "Rarity", item.Rarity },
                         { "Name", item.Name },
-                        { "RecipeResult", null },
+                        { "RecipeResult", item.RecipeInfos.Result.Id },
                         { "MaximumUses", item.MaximumUses },
                         { "ForgeLevelRequired", item.ForgeLevelRequired }
                     };
