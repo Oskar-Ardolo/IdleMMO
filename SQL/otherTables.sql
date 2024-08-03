@@ -1,0 +1,2 @@
+CREATE TABLE `ingredients` (`RecipeId` VARCHAR(100) NOT NULL , `ItemId` VARCHAR(100) NOT NULL , `Count` INT NOT NULL , PRIMARY KEY (`RecipeId`, `ItemId`)) ENGINE = InnoDB;
+CREATE TABLE `items_data` (`Name` VARCHAR(255) NOT NULL , `Type` VARCHAR(100) NOT NULL , `VendorValue` INT NOT NULL , `id` VARCHAR(100) NOT NULL , `Quality` VARCHAR(100) NOT NULL , `Rarity` VARCHAR(100) NOT NULL , `MaximumUses` INT NOT NULL , `ForgeLevelRequired` INT NOT NULL , `RecipeResult` VARCHAR(100) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
